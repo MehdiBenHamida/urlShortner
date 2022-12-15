@@ -1,7 +1,6 @@
 import httpx
 from fastapi import Depends, HTTPException
 from fastapi.responses import RedirectResponse
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .app import app
