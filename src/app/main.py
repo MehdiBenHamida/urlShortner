@@ -1,6 +1,7 @@
 import httpx
 from fastapi import Depends, HTTPException
 from fastapi.responses import RedirectResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .app import app
@@ -26,7 +27,12 @@ def get_short_link(url: UrlCreateSchema, db: Session = Depends(get_db_session)):
     :param db: database session
     :return: url object
     """
-    url = create_short_url(original_url=url.url, db=db)
+    try:
+        url = create_short_url(original_url=url.url, db=db)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=httpx.codes.SERVICE_UNAVAILABLE, detail="No more available short urls."
+        )
     return {
         'original_url': url.original_url,
         'short_url': url.short_url,
@@ -46,6 +52,6 @@ def redirect(short_url: str, db: Session = Depends(get_db_session)):
     url = get_url(short_url=short_url, db=db)
     if url is None:
         raise HTTPException(
-            status_code=404, detail="The link does not exist, could not redirect."
+            status_code=httpx.codes.NOT_FOUND, detail="The link does not exist, could not redirect."
         )
     return RedirectResponse(url=url.original_url)

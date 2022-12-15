@@ -10,7 +10,7 @@ class Url(Base):
     __tablename__ = "url"
 
     id = Column(Integer, primary_key=True, unique=True)
-    original_url = Column(Text, nullable=False)
+    original_url = Column(Text, unique=True, nullable=False)
     short_url = Column(Text, unique=True, index=True, nullable=False)
     clicks = Column(BigInteger, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)

@@ -16,6 +16,7 @@ class TestUtils:
         assert len(get_random_string(5)) == 5
 
     def test_retry(self):
+        """Should retry the broken function `max_retries` times."""
         max_retries = 3
 
         @retry(exceptions=SomeException, max_retries=max_retries)
