@@ -27,12 +27,7 @@ def get_short_link(url: UrlCreateSchema, db: Session = Depends(get_db_session)):
     :param db: database session
     :return: url object
     """
-    try:
-        url = create_short_url(original_url=url.url, db=db)
-    except IntegrityError:
-        raise HTTPException(
-            status_code=httpx.codes.SERVICE_UNAVAILABLE, detail="No more available short urls."
-        )
+    url = create_short_url(original_url=url.url, db=db)
     return {
         'original_url': url.original_url,
         'short_url': url.short_url,
