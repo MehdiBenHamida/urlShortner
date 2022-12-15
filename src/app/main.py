@@ -26,7 +26,7 @@ def get_short_link(url: UrlCreateSchema, db: Session = Depends(get_db_session)):
     :param db: database session
     :return: url object
     """
-    url = create_short_url(original_url=url.url, db=db)
+    url = create_short_url(original_url=url.url.lower(), db=db)
     return {
         'original_url': url.original_url,
         'short_url': url.short_url,

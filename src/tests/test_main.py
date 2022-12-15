@@ -72,6 +72,38 @@ class TestMain:
             assert new_expires_at >= now + URL_TIME_TO_EXPIRE
 
     @db_reset()
+    def test_case_sensitivity(self):
+        """Should return the same short url because the url already exists in different case
+        and update expires_at."""
+
+        with TestClient(app) as client:
+            # first query to create short url
+            url = "https://www.google.com"
+            response = client.post(
+                "/shorten",
+                headers={"Content-Type": "application/json"},
+                json={"url": url},
+            )
+            # check valid response
+            assert response.status_code == httpx.codes.CREATED
+            assert "short_url" in response.json()
+            short_url = response.json()["short_url"]
+            expires_at = parser.parse(response.json()["expires_at"])
+
+            # second query
+            now = datetime.utcnow()
+            response = client.post(
+                "/shorten",
+                headers={"Content-Type": "application/json"},
+                json={"url": url.upper()},
+            )
+            # check `expires_at` is updated
+            assert response.json()["short_url"] == short_url
+            new_expires_at = parser.parse(response.json()["expires_at"])
+            assert new_expires_at != expires_at
+            assert new_expires_at >= now + URL_TIME_TO_EXPIRE
+
+    @db_reset()
     def test_redirect_short_url(self):
         """Should redirect to the original url from the short url."""
         with TestClient(app) as client:
